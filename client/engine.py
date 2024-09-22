@@ -56,7 +56,7 @@ class Engine:
         try:
             res = []
             date = cursor.execute(query).fetchone()[0]
-            logger.debug(f"Most recent date: {date}")
+            logger.info(f"Most recent date: {date}")
             for csv in self.sftp_files:
                 _date = datetime.strptime(csv.split("_")[0], "%Y%m%d")
                 if _date > date:
