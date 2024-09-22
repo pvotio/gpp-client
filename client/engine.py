@@ -4,7 +4,7 @@ import os
 import pandas as pd
 
 from client.utils import generate_table_name
-from config import logger, settings
+from config import logger
 
 
 class Engine:
