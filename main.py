@@ -28,10 +28,13 @@ def main():
         return
 
     logger.info("Transforming Data")
-    df_transformed = transform(raw_data)
-    logger.info(f"Inserting Data into {settings.OUTPUT_TABLE}")
-    logger.info(df_transformed)
-    conn.insert(df_transformed, settings.OUTPUT_TABLE)
+    dfs_transformed = transform(raw_data)
+    logger.info(f"Inserting Data into database")
+    for name, df in dfs_transformed.items():
+        logger.debug(f"{name}:\n{df}")
+        logger.info(f"Inserting data to {name}")
+        conn.insert(df, name)
+
     logger.info("Application completed successfully")
     return
 

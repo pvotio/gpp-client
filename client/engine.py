@@ -1,5 +1,5 @@
-import datetime
 import os
+from datetime import datetime
 
 import pandas as pd
 
@@ -71,7 +71,8 @@ class Engine:
             cursor.close()
             conn.close()
 
-    def read_sftp_csvs(self):
+    def read_sftp_files(self):
+        logger.info("Reading SFTP CSV files from directory: %s", self.DIR)
         for csv in self.sftp_files:
             table_name = generate_table_name(csv)
             df = pd.read_csv(self.sftp.open(os.path.join(self.DIR, csv)))
@@ -82,6 +83,7 @@ class Engine:
 
             self.raw_data[table_name].append(df)
 
+        logger.info("Reading SFTP files completed")
         return
 
     def close(self):
