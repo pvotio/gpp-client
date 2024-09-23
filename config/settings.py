@@ -1,7 +1,6 @@
 from decouple import config
 
 LOG_LEVEL = config("LOG_LEVEL", default="INFO")
-OUTPUT_TABLE = config("OUTPUT_TABLE")
 INSERTER_MAX_RETRIES = config("INSERTER_MAX_RETRIES", default=3, cast=int)
 SFTP_HOST = config("SFTP_HOST")
 SFTP_PORT = config("SFTP_PORT", cast=int)
