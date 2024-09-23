@@ -29,7 +29,7 @@ def main():
 
     logger.info("Transforming Data")
     dfs_transformed = transform(raw_data)
-    logger.info(f"Inserting Data into database")
+    logger.info("Inserting Data into database")
     for name, df in dfs_transformed.items():
         logger.debug(f"{name}:\n{df}")
         logger.info(f"Inserting data to {name}")
