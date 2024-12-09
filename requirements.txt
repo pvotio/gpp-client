@@ -4,3 +4,5 @@ paramiko==3.4.1
 pyodbc==5.1.0
 python-decouple==3.8
 SQLAlchemy==2.0.32
+azure-identity==1.19.0
+fast-to-sql==2.3.0

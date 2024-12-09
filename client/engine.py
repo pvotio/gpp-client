@@ -5,16 +5,16 @@ import pandas as pd
 
 from client.utils import generate_table_name
 from config import logger
+from database.helper import get_latest_date
 
 
 class Engine:
 
     DIR = "/Reports"
 
-    def __init__(self, sftp, transport, conn):
+    def __init__(self, sftp, transport):
         self.sftp = sftp
         self.transport = transport
-        self.conn = conn
         self.sftp_files = []
         self.raw_data = {}
 
@@ -40,22 +40,9 @@ class Engine:
         return
 
     def skip_processed_files(self):
-        query = """SELECT TOP 1 t.BusinessDate
-            FROM (
-                SELECT DISTINCT [BusinessDate]
-                FROM [etl].[gpp_unsettledtrades]
-                UNION
-                SELECT DISTINCT [BusinessDate]
-                FROM [etl].[gpp_settledtrades]
-            ) t
-            ORDER BY BusinessDate DESC
-        """
-        self.conn.db_connection.connect()
-        conn = self.conn.db_connection.engine.raw_connection()
-        cursor = conn.cursor()
         try:
             res = []
-            date = cursor.execute(query).fetchone()[0]
+            date = get_latest_date()
             logger.info(f"Most recent date: {date}")
             for csv in self.sftp_files:
                 _date = datetime.strptime(csv.split("_")[0], "%Y%m%d")
@@ -66,10 +53,6 @@ class Engine:
         except Exception as e:
             logger.error(f"Error fetching or processing latest date: {str(e)}")
             return False
-
-        finally:
-            cursor.close()
-            conn.close()
 
     def read_sftp_files(self):
         logger.info("Reading SFTP CSV files from directory: %s", self.DIR)

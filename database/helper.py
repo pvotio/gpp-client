@@ -1,11 +1,24 @@
-from config import settings
-from database import MSSQLDatabaseConnection, PandasSQLDataInserter
+from datetime import datetime
+
+from database import MSSQLDatabase
 
 
-def create_inserter_objects(*args, **kwargs) -> PandasSQLDataInserter:
-    db_connection = MSSQLDatabaseConnection(*args, **kwargs)
-    data_inserter = PandasSQLDataInserter(
-        db_connection, max_retries=settings.INSERTER_MAX_RETRIES
-    )
+def init_db_instance():
+    return MSSQLDatabase()
 
-    return data_inserter
+
+def get_latest_date():
+    conn = init_db_instance()
+    query = """
+    SELECT TOP 1 t.BusinessDate
+            FROM (
+                SELECT DISTINCT [BusinessDate]
+                FROM [etl].[gpp_unsettledtrades]
+                UNION
+                SELECT DISTINCT [BusinessDate]
+                FROM [etl].[gpp_settledtrades]
+            ) t
+            ORDER BY BusinessDate DESC
+    """
+    date = conn.select_table(query)["BusinessDate"].to_list()[0]
+    return date
