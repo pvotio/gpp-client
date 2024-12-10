@@ -100,7 +100,6 @@ class MSSQLDatabase(object):
             self.cnx.commit()
         except Exception as e:
             logger.error(f"Error inserting into table {table_name}: {e}")
-            raise
         finally:
             self.cnx.close()
 
