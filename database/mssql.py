@@ -53,7 +53,7 @@ class MSSQLDatabase(object):
             if hasattr(self, "cnx") and self.cnx:
                 self.cnx.close()
         except Exception as e:
-            logger.warning(f"Error closing stale connection: {e}")
+            logger.debug(f"Error closing stale connection: {e}")
 
         self.cnx = self._get_connection()
 
