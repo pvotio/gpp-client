@@ -28,7 +28,7 @@ def main():
     for name, df in dfs_transformed.items():
         logger.debug(f"{name}:\n{df}")
         logger.info(f"Inserting data to {name}")
-        conn.insert_table(df, name)
+        conn.insert_table(df, name, delete_prev_records=False)
 
     logger.info("Application completed successfully")
     return
