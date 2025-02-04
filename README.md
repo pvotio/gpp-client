@@ -1,4 +1,4 @@
-# GPP (Global Prime Partners) Client
+# Global Prime Partners (GPP) Client
 ## Overview
 GPP Client is a Python-based data pipeline that connects to GPP SFTP server, retrieves CSV reports, processes the data, and stores it in a Microsoft SQL Server database. The system supports automated data ingestion, transformation, and storage.
 
