@@ -5,6 +5,7 @@ WORKDIR /opt/app
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
     gnupg \
+    build-essential \
     unixodbc-dev \
     unixodbc \
     libpq-dev \
