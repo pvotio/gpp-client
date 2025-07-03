@@ -1,4 +1,4 @@
-# GPP SFTP Data Ingestion Client
+# Global Prime Partners (GPP) SFTP Data Ingestion Client
 
 This project implements a secure and automated data ingestion pipeline for retrieving CSV-based financial reports from an SFTP server operated by **GPP Group** ([gpp.group](https://gpp.group) / [Titan IS](https://titan-is.com)). It extracts, transforms, and stores this data into a Microsoft SQL Server database for subsequent analysis and operational use.
 
