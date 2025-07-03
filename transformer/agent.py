@@ -10,4 +10,12 @@ def transform(raw_data):
         if "index" in raw_data[name].columns.to_list():
             raw_data[name].drop(columns={"index"}, inplace=True)
 
+        if "trades" in name:
+            raw_data[name]["GrossTradePrice"] = (
+                raw_data[name]["GrossTradePrice"]
+                .astype(str)
+                .str.replace(",", "", regex=False)
+                .replace({"": None, "nan": None})
+            )
+
     return raw_data
