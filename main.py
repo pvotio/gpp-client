@@ -14,7 +14,9 @@ def main():
         password=settings.SFTP_PASSWORD,
     )
     logger.info("Preparing Database Connection")
-    engine = Engine(sftp, transport)
+    engine = Engine(
+        sftp, transport, settings.KEEP_REPORT_TYPES, settings.FETCH_LAST_X_DAYS
+    )
     raw_data = engine.fetch()
     engine.close()
     if not raw_data:
@@ -28,7 +30,7 @@ def main():
     for name, df in dfs_transformed.items():
         logger.debug(f"{name}:\n{df}")
         logger.info(f"Inserting data to {name}")
-        conn.insert_table(df, name, delete_prev_records=False)
+        conn.insert_table(df, name, delete_prev_records=True)
 
     logger.info("Application completed successfully")
     return
