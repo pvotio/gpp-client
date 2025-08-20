@@ -8,6 +8,26 @@ RUN mkdir -p /opt/app
 WORKDIR /opt/app
 
 # System deps + MS ODBC 18 (Debian 13 / Trixie) via signed keyring
+# RUN apt-get update && apt-get install -y --no-install-recommends \
+#      curl \
+#       ca-certificates \
+#       gnupg \
+#       build-essential \
+#       unixodbc \
+#       unixodbc-dev \
+#       libpq-dev \
+#  && mkdir -p /usr/share/keyrings \
+#  && curl -fsSL https://packages.microsoft.com/keys/microsoft.asc \
+#     | gpg --dearmor -o /usr/share/keyrings/msprod.gpg \
+#  && echo "deb [signed-by=/usr/share/keyrings/msprod.gpg] https://packages.microsoft.com/repos/microsoft-debian-trixie-prod trixie main" \
+#     > /etc/apt/sources.list.d/mssql-release.list \
+#  && apt-get update \
+#  && ACCEPT_EULA=Y apt-get install -y --no-install-recommends msodbcsql18 mssql-tools \
+#  # expose sqlcmd/bcp without editing shell profiles
+#  && ln -s /opt/mssql-tools/bin/sqlcmd /usr/local/bin/sqlcmd \
+#  && ln -s /opt/mssql-tools/bin/bcp /usr/local/bin/bcp \
+#  && rm -rf /var/lib/apt/lists/*
+
 RUN apt-get update && apt-get install -y --no-install-recommends \
       curl \
       ca-certificates \
@@ -15,18 +35,19 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
       build-essential \
       unixodbc \
       unixodbc-dev \
-      libpq-dev \
- && mkdir -p /usr/share/keyrings \
- && curl -fsSL https://packages.microsoft.com/keys/microsoft.asc \
-    | gpg --dearmor -o /usr/share/keyrings/msprod.gpg \
- && echo "deb [signed-by=/usr/share/keyrings/msprod.gpg] https://packages.microsoft.com/repos/microsoft-debian-trixie-prod trixie main" \
-    > /etc/apt/sources.list.d/mssql-release.list \
- && apt-get update \
- && ACCEPT_EULA=Y apt-get install -y --no-install-recommends msodbcsql18 mssql-tools \
+      libpq-dev 
+RUN mkdir -p /usr/share/keyrings 
+RUN curl -fsSL https://packages.microsoft.com/keys/microsoft.asc \
+    | gpg --dearmor -o /usr/share/keyrings/msprod.gpg 
+RUN echo "deb [signed-by=/usr/share/keyrings/msprod.gpg] https://packages.microsoft.com/repos/microsoft-debian-trixie-prod trixie main" \
+    > /etc/apt/sources.list.d/mssql-release.list 
+RUN apt-get update 
+RUN ACCEPT_EULA=Y apt-get install -y --no-install-recommends msodbcsql18 mssql-tools 
  # expose sqlcmd/bcp without editing shell profiles
- && ln -s /opt/mssql-tools/bin/sqlcmd /usr/local/bin/sqlcmd \
- && ln -s /opt/mssql-tools/bin/bcp /usr/local/bin/bcp \
- && rm -rf /var/lib/apt/lists/*
+RUN ln -s /opt/mssql-tools/bin/sqlcmd /usr/local/bin/sqlcmd 
+RUN ln -s /opt/mssql-tools/bin/bcp /usr/local/bin/bcp 
+RUN rm -rf /var/lib/apt/lists/*
+
 
 # Python deps
 ADD requirements.txt .
