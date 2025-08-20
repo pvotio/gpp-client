@@ -1,4 +1,4 @@
-FROM python:3.13.7-slim-trixie
+FROM python:3.13.7-alpine3.22
 
 ENV DEBIAN_FRONTEND=noninteractive \
     PYTHONDONTWRITEBYTECODE=1 \
@@ -28,39 +28,29 @@ WORKDIR /opt/app
 #  && ln -s /opt/mssql-tools/bin/bcp /usr/local/bin/bcp \
 #  && rm -rf /var/lib/apt/lists/*
 
-RUN apt-get update && apt-get install -y --no-install-recommends \
-      curl \
-      ca-certificates \
-      gnupg \
-      build-essential \
-      unixodbc \
-      unixodbc-dev \
-      libpq-dev 
-RUN mkdir -p /usr/share/keyrings 
-RUN curl -fsSL https://packages.microsoft.com/keys/microsoft.asc \
-    | gpg --dearmor -o /usr/share/keyrings/msprod.gpg 
-RUN echo "deb [signed-by=/usr/share/keyrings/msprod.gpg] https://packages.microsoft.com/repos/microsoft-debian-trixie-prod trixie main" \
-    > /etc/apt/sources.list.d/mssql-release.list 
-RUN apt-get update 
-RUN ACCEPT_EULA=Y apt-get install -y --no-install-recommends msodbcsql18 mssql-tools 
- # expose sqlcmd/bcp without editing shell profiles
-RUN ln -s /opt/mssql-tools/bin/sqlcmd /usr/local/bin/sqlcmd 
-RUN ln -s /opt/mssql-tools/bin/bcp /usr/local/bin/bcp 
-RUN rm -rf /var/lib/apt/lists/*
-
-
 # Python deps
 ADD requirements.txt .
-RUN pip install --no-cache-dir -r requirements.txt
 
-# (Optional) remove build tools to slim image if not needed at runtime
-# RUN apt-get purge -y --auto-remove build-essential gnupg && rm -rf /var/lib/apt/lists/*
+RUN apk update \
+    && apk add unixodbc \
+    && apk add --no-cache --virtual .build-deps curl gnupg g++ musl-dev unixodbc-dev \
+    && curl -O https://download.microsoft.com/download/fae28b9a-d880-42fd-9b98-d779f0fdd77f/msodbcsql18_18.5.1.1-1_amd64.apk \
+    && curl -O https://download.microsoft.com/download/7/6/d/76de322a-d860-4894-9945-f0cc5d6a45f8/mssql-tools18_18.4.1.1-1_amd64.apk \
+    && curl -O https://download.microsoft.com/download/fae28b9a-d880-42fd-9b98-d779f0fdd77f/msodbcsql18_18.5.1.1-1_amd64.sig \
+    && curl -O https://download.microsoft.com/download/7/6/d/76de322a-d860-4894-9945-f0cc5d6a45f8/mssql-tools18_18.4.1.1-1_amd64.sig \
+    && curl https://packages.microsoft.com/keys/microsoft.asc  | gpg --import - \
+    && gpg --verify msodbcsql18_18.5.1.1-1_amd64.sig msodbcsql18_18.5.1.1-1_amd64.apk \ 
+    && gpg --verify mssql-tools18_18.4.1.1-1_amd64.sig mssql-tools18_18.4.1.1-1_amd64.apk \
+    && apk add --allow-untrusted msodbcsql18_18.5.1.1-1_amd64.apk \
+    && apk add --allow-untrusted mssql-tools18_18.4.1.1-1_amd64.apk \
+    && pip install --no-cache-dir -r requirements.txt \
+    && apk del .build-deps curl gnupg
 
 # App code
 COPY . .
 
 # Non-root user
-RUN useradd -m -r -d /opt/app -s /usr/sbin/nologin client \
+RUN addgroup -S client && adduser -S -h /opt/app -s /usr/sbin/nologin client \
  && chown -R client:client /opt/app
 USER client
 
