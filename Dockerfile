@@ -1,4 +1,4 @@
-FROM python:3.13.7-slim-bookworm
+FROM python:3.13.7-slim-trixie
 
 ENV DEBIAN_FRONTEND=noninteractive \
     PYTHONDONTWRITEBYTECODE=1 \
@@ -7,7 +7,7 @@ ENV DEBIAN_FRONTEND=noninteractive \
 RUN mkdir -p /opt/app
 WORKDIR /opt/app
 
-# System deps + MS ODBC 18 (Debian 12 / Bookworm) via signed keyring
+# System deps + MS ODBC 18 (Debian 13 / Trixie) via signed keyring
 RUN apt-get update && apt-get install -y --no-install-recommends \
       curl \
       ca-certificates \
@@ -19,7 +19,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
  && mkdir -p /usr/share/keyrings \
  && curl -fsSL https://packages.microsoft.com/keys/microsoft.asc \
     | gpg --dearmor -o /usr/share/keyrings/msprod.gpg \
- && echo "deb [signed-by=/usr/share/keyrings/msprod.gpg] https://packages.microsoft.com/repos/microsoft-debian-bookworm-prod bookworm main" \
+ && echo "deb [signed-by=/usr/share/keyrings/msprod.gpg] https://packages.microsoft.com/repos/microsoft-debian-trixie-prod trixie main" \
     > /etc/apt/sources.list.d/mssql-release.list \
  && apt-get update \
  && ACCEPT_EULA=Y apt-get install -y --no-install-recommends msodbcsql18 mssql-tools \
