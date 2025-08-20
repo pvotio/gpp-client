@@ -18,12 +18,12 @@ RUN apk update \
     && pip install --no-cache-dir pyodbc \
     && apk del .build-deps curl gnupg
 
-RUN mkdir -p /opt/app
-WORKDIR /opt/app
+RUN mkdir -p /app
+WORKDIR /app
 
 # Non-root user
-RUN addgroup -S app && adduser -S -h /opt/app -s /usr/sbin/nologin app \
- && chown -R app:app /opt/app
+RUN addgroup -S app && adduser -S -h /app -s /usr/sbin/nologin app \
+ && chown -R app:app /app
 
  ####################################################################
  # Image customization from here
