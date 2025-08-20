@@ -1,14 +1,7 @@
-FROM python:3.13.7-alpine3.22
+FROM python:3.13.7-alpine3.22 AS pa-python-odbc
 
-ENV DEBIAN_FRONTEND=noninteractive \
-    PYTHONDONTWRITEBYTECODE=1 \
+ENV PYTHONDONTWRITEBYTECODE=1 \
     PYTHONUNBUFFERED=1
-
-RUN mkdir -p /opt/app
-WORKDIR /opt/app
-
-# Python deps
-ADD requirements.txt .
 
 RUN apk update \
     && apk add unixodbc \
@@ -22,15 +15,29 @@ RUN apk update \
     && gpg --verify mssql-tools18_18.4.1.1-1_amd64.sig mssql-tools18_18.4.1.1-1_amd64.apk \
     && apk add --allow-untrusted msodbcsql18_18.5.1.1-1_amd64.apk \
     && apk add --allow-untrusted mssql-tools18_18.4.1.1-1_amd64.apk \
-    && pip install --no-cache-dir -r requirements.txt \
+    && pip install --no-cache-dir pyodbc \
     && apk del .build-deps curl gnupg
+
+RUN mkdir -p /opt/app
+WORKDIR /opt/app
+
+# Non-root user
+RUN addgroup -S app && adduser -S -h /opt/app -s /usr/sbin/nologin app \
+ && chown -R app:app /opt/app
+
+ ####################################################################
+ # Image customization from here
+ ####################################################################
+FROM pa-python-odbc
+
+# Python deps
+ADD requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt 
 
 # App code
 COPY . .
 
-# Non-root user
-RUN addgroup -S client && adduser -S -h /opt/app -s /usr/sbin/nologin client \
- && chown -R client:client /opt/app
-USER client
+# switch user
+USER app
 
 CMD ["python", "main.py"]
