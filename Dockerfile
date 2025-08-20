@@ -15,8 +15,11 @@ RUN apk update \
     && gpg --verify mssql-tools18_18.4.1.1-1_amd64.sig mssql-tools18_18.4.1.1-1_amd64.apk \
     && apk add --allow-untrusted msodbcsql18_18.5.1.1-1_amd64.apk \
     && apk add --allow-untrusted mssql-tools18_18.4.1.1-1_amd64.apk \
+    && pip install --upgrade pip \
     && pip install --no-cache-dir pyodbc \
-    && apk del .build-deps curl gnupg
+    && apk del .build-deps curl gnupg \
+    && ln -s /opt/mssql-tools/bin/sqlcmd /usr/local/bin/sqlcmd \
+    && ln -s /opt/mssql-tools/bin/bcp /usr/local/bin/bcp 
 
 RUN mkdir -p /app
 WORKDIR /app
@@ -35,7 +38,7 @@ ADD requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt 
 
 # App code
-COPY . .
+COPY --chown=app:app . .
 
 # switch user
 USER app
